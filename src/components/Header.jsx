@@ -1,11 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { toggleMenu } from "../utils/appSlice";
+import { YOUTUBE_SEARCH_API } from "../utils/constants";
 
 const Header = () => {
   const dispatch = useDispatch();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  //const navigate = useNavigate();
   const toggleMenuHandler = () => {
     dispatch(toggleMenu());
+  };
+
+  /*here we apply debouncing effect
+  * we have to make api calls after every key press.
+  * but if the time differnce between consecutive 2 key strokes is less than 200ms decline API Call
+  
+  */
+
+  useEffect(() => {
+    const timer = setTimeout(() => getSearchSuggestions(), 300);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
+
+  const getSearchSuggestions = async () => {
+    const data = await fetch(YOUTUBE_SEARCH_API + searchQuery);
+    const json = await data.json();
+    console.log(json[1]);
+    setSuggestions(json[1]);
   };
   return (
     <div className="grid grid-flow-col p-2 shadow-xl">
@@ -16,23 +41,41 @@ const Header = () => {
           className="h-12 mx-3 cursor-pointer"
           onClick={() => toggleMenuHandler()}
         />
+
         <img
           src="https://cdn.pixabay.com/photo/2020/11/01/04/41/youtube-5702871_640.jpg"
           alt="logo"
           className="h-12 cursor-pointer"
         />
       </div>
-      <div className="col-span-9 text-center">
-        <input
-          type="text"
-          className="border border-black border-collapse w-1/2 rounded-l-full p-3"
-        />
-        <button
-          type="button"
-          className="text-white text-center bg-gradient-to-r from-red-400 rounded-r-full via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium  p-4  text-md border border-black"
-        >
-          Search
-        </button>
+      <div className="col-span-10 px-10">
+        <div>
+          <input
+            type="text"
+            className="border border-black border-collapse w-1/2 rounded-l-full p-3"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setShowSuggestions(false)}
+          />
+          <button
+            type="button"
+            className="text-white text-center bg-gradient-to-r from-red-400 rounded-r-full via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium  p-4  text-md border border-black"
+          >
+            Search
+          </button>
+        </div>
+        {showSuggestions && (
+          <div className="fixed bg-white py-2 px-5 w-[34rem] shadow-lg shadow-gray-400 rounded-lg">
+            <ul>
+              {suggestions.map((e) => (
+                <li className="px-5 py-3 shadow-sm hover:bg-gray-200" key={e}>
+                  {e}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
       <div className="py-2">
         <img
