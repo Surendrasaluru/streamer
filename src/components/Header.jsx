@@ -8,6 +8,7 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  //console.log(searchQuery);
   //const navigate = useNavigate();
   const toggleMenuHandler = () => {
     dispatch(toggleMenu());
@@ -69,7 +70,11 @@ const Header = () => {
           <div className="fixed bg-white py-2 px-5 w-[34rem] shadow-lg shadow-gray-400 rounded-lg">
             <ul>
               {suggestions.map((e) => (
-                <li className="px-5 py-3 shadow-sm hover:bg-gray-200" key={e}>
+                <li
+                  className="px-5 py-3 shadow-sm hover:bg-gray-200"
+                  key={e}
+                  //onClick={(e) => setSearchQuery(e.target.value)}
+                >
                   {e}
                 </li>
               ))}
